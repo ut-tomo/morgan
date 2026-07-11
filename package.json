@@ -1,0 +1,37 @@
+{
+  "name": "morgan-fingerprint-playground",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Educational playground teaching Morgan 1965 refinement, 1-WL vertex refinement, and modern RDKit Morgan fingerprints.",
+  "license": "MIT",
+  "scripts": {
+    "predev": "node scripts/copy-rdkit.mjs",
+    "dev": "vite",
+    "prebuild": "node scripts/copy-rdkit.mjs",
+    "build": "tsc -b && vite build",
+    "pretest": "node scripts/copy-rdkit.mjs",
+    "preview": "vite preview",
+    "typecheck": "tsc -b --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "lint": "tsc -b --noEmit"
+  },
+  "dependencies": {
+    "@rdkit/rdkit": "2025.3.4-1.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.48.0",
+    "@types/node": "^20.19.43",
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.2",
+    "jsdom": "^25.0.1",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.9",
+    "vitest": "^2.1.3"
+  }
+}
