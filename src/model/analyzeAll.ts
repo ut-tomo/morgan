@@ -10,6 +10,7 @@ import { runWlRefinement } from '../refinement/wlRefinement';
 import { runMorgan1965 } from '../refinement/morgan1965';
 import { extractEnvironments, type CircularEnvironment } from '../refinement/environmentExtraction';
 import { aggregateFeatures, binaryFeatureSet } from '../refinement/featureAggregation';
+import { LabelDictionary } from '../refinement/graph';
 import type {
   InitialInvariantMode,
   Morgan1965Result,
@@ -77,8 +78,23 @@ export function compareAnalyses(
   uniqueToA.sort((x, y) => x - y);
   uniqueToB.sort((x, y) => x - y);
 
-  const featA = binaryFeatureSet(a.sparse);
-  const featB = binaryFeatureSet(b.sparse);
+  // Educational environment overlap must be COMPARABLE across molecules. The
+  // per-molecule sparse fingerprints (a.sparse / b.sparse) use independent
+  // dictionaries, so their integer ids are NOT comparable — id 3 in A is
+  // unrelated to id 3 in B. We therefore re-run the WL refinement for BOTH
+  // graphs sharing ONE dictionary, so identical rooted environments receive
+  // identical identifiers and (identifier, radius) keys can be intersected.
+  const sharedDict = new LabelDictionary();
+  const radius = a.settings.radius;
+  const mode = a.settings.invariantMode;
+  const wlA = runWlRefinement(a.molecule.graph, mode, radius, sharedDict);
+  const wlB = runWlRefinement(b.molecule.graph, mode, radius, sharedDict);
+  const featA = binaryFeatureSet(
+    aggregateFeatures(extractEnvironments(a.molecule.graph, wlA, radius), mode, radius),
+  );
+  const featB = binaryFeatureSet(
+    aggregateFeatures(extractEnvironments(b.molecule.graph, wlB, radius), mode, radius),
+  );
   let sharedEnvironmentCount = 0;
   let environmentsOnlyInA = 0;
   for (const f of featA) (featB.has(f) ? (sharedEnvironmentCount += 1) : (environmentsOnlyInA += 1));

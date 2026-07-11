@@ -35,8 +35,11 @@ export function runWlRefinement(
   graph: MolecularGraph,
   mode: InitialInvariantMode,
   maxRadius: number,
+  // Pass a shared dictionary to make identifiers COMPARABLE ACROSS graphs:
+  // identical rooted environments then receive identical integer ids. When
+  // omitted, each call gets a fresh dictionary (per-molecule ids).
+  dict: LabelDictionary = new LabelDictionary(),
 ): WlRefinementResult {
-  const dict = new LabelDictionary();
   const rounds: RefinementRound[] = [];
 
   // ---- Round 0: initial invariants -------------------------------------

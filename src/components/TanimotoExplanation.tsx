@@ -27,7 +27,10 @@ export function TanimotoExplanation({
       {popA === 0 && popB === 0 ? (
         <p className="hint">
           Both fingerprints are all-zero; we define this degenerate case as
-          T = 1.0 (two identical empty feature sets).
+          T = 1.0 (two identical empty feature sets). Note this is a convention
+          choice — RDKit's bulk Tanimoto returns 0.0 for a zero denominator. A
+          valid molecule always sets at least one bit, so this case is only
+          reached with empty inputs.
         </p>
       ) : null}
       <p className="warn-note">

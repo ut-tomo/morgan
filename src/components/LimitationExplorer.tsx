@@ -8,6 +8,9 @@ import {
 import { GenericGraphView } from './GenericGraphView';
 import { useRdkit } from '../rdkit/RdkitProvider';
 import { computeRdkitMorgan } from '../rdkit/fingerprint';
+import { analyzeMolecule } from '../rdkit/molecule';
+import { runWlRefinement } from '../refinement/wlRefinement';
+import { firstCollisionAtModulus } from '../refinement/hashCollision';
 
 const ROUNDS = 4;
 
@@ -55,6 +58,7 @@ export function LimitationExplorer() {
             dictionary — so you can see when a collision is caused by hashing
             versus by the graph itself.)
           </p>
+          <HashCollisionDemo />
         </li>
 
         <li>
@@ -175,6 +179,72 @@ function BitFoldingDemo() {
         A smaller set-bit count at the same radius proves distinct environment
         identifiers collided when folded — verified here against the live RDKit
         output, not asserted.
+      </p>
+    </div>
+  );
+}
+
+// Illustrative hashing collision (mechanism 3), computed live on real
+// environment signatures with a small toy hash.
+const HASH_SMILES = 'CC(=O)Oc1ccccc1C(=O)O';
+const HASH_MODULI = [8, 12, 16, 24, 32, 48, 64];
+
+function HashCollisionDemo() {
+  const { rdkit, status } = useRdkit();
+  const result = useMemo(() => {
+    if (status !== 'ready' || !rdkit) return null;
+    const graph = analyzeMolecule(rdkit, HASH_SMILES).graph;
+    const wl = runWlRefinement(graph, 'rdkit-inspired', 2);
+    // Distinct educational signatures across all radii.
+    const sigs = new Set<string>();
+    for (const round of wl.rounds) for (const e of round.dictionary) sigs.add(e.key);
+    const signatures = [...sigs];
+    const collision = firstCollisionAtModulus(signatures, HASH_MODULI);
+    return { distinct: signatures.length, collision };
+  }, [rdkit, status]);
+
+  if (!result) return <p className="hint">Loading RDKit…</p>;
+  const { distinct, collision } = result;
+  return (
+    <div className="hash-demo">
+      <p className="demo-caption">
+        Aspirin has {distinct} distinct educational environment signatures. A
+        real implementation would hash each to an integer. Using a small toy
+        hash <code>FNV-1a(signature) mod M</code> (illustrative, not RDKit's
+        hash):
+      </p>
+      {collision ? (
+        <table className="data-table">
+          <caption className="sr-only">Two distinct signatures hashing to the same bucket</caption>
+          <thead>
+            <tr>
+              <th scope="col">Distinct signature</th>
+              <th scope="col">FNV-1a hash</th>
+              <th scope="col">mod {collision.modulus}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td className="sig-cell"><code>{collision.a}</code></td>
+              <td>{collision.fullHashA}</td>
+              <td className="distinct">{collision.bucket}</td>
+            </tr>
+            <tr>
+              <td className="sig-cell"><code>{collision.b}</code></td>
+              <td>{collision.fullHashB}</td>
+              <td className="distinct">{collision.bucket}</td>
+            </tr>
+          </tbody>
+        </table>
+      ) : (
+        <p className="hint">No collision at the tested moduli for this molecule.</p>
+      )}
+      <p className="hint">
+        Two <strong>different</strong> environments landed on identifier{' '}
+        {collision?.bucket} — an identifier collision that happened{' '}
+        <em>before</em> any bit-folding. This is why the educational mode uses an
+        exact dictionary instead: it lets you attribute a collision to hashing
+        (this section) rather than to the graph (section 1 and 2).
       </p>
     </div>
   );

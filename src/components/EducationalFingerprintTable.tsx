@@ -2,14 +2,18 @@ import type { SparseFingerprint } from '../refinement/types';
 import { featureKey } from '../refinement/featureAggregation';
 import { LabelChip } from './LabelChip';
 
+export type AggregationMode = 'count' | 'binary';
+
 export function EducationalFingerprintTable({
   sparse,
   selectedKey,
   onSelect,
+  aggregation,
 }: {
   sparse: SparseFingerprint;
   selectedKey: string | null;
   onSelect: (key: string) => void;
+  aggregation: AggregationMode;
 }) {
   return (
     <div className="table-scroll">
@@ -21,7 +25,7 @@ export function EducationalFingerprintTable({
           <tr>
             <th scope="col">Identifier</th>
             <th scope="col">Radius</th>
-            <th scope="col">Count</th>
+            <th scope="col">{aggregation === 'count' ? 'Count' : 'Present'}</th>
             <th scope="col">Center atoms</th>
           </tr>
         </thead>
@@ -46,7 +50,7 @@ export function EducationalFingerprintTable({
                   </button>
                 </td>
                 <td>{f.radius}</td>
-                <td>{f.count}</td>
+                <td>{aggregation === 'count' ? f.count : '1'}</td>
                 <td className="centers">{f.centerAtoms.join(', ')}</td>
               </tr>
             );

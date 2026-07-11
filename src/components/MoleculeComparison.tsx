@@ -15,8 +15,23 @@ export function MoleculeComparison({
   result: MoleculeComparisonResult;
 }) {
   const sharedSet = useMemo(() => new Set(result.sharedBits), [result.sharedBits]);
+  const samemolecule =
+    a.molecule.canonicalSmiles === b.molecule.canonicalSmiles &&
+    a.molecule.inputSmiles !== b.molecule.inputSmiles;
   return (
     <div className="comparison">
+      {samemolecule ? (
+        <div className="perm-callout" role="note">
+          <strong>Permutation invariance:</strong> A (
+          <code>{a.molecule.inputSmiles}</code>) and B (
+          <code>{b.molecule.inputSmiles}</code>) are the <em>same</em> molecule
+          written by different SMILES traversals. Compare the atom-index labels
+          in the two drawings — the numbering differs — yet RDKit canonicalizes
+          both to <code>{a.molecule.canonicalSmiles}</code> and the fingerprints
+          are identical (Tanimoto = 1.0). The fingerprint depends on the graph,
+          not on how the atoms happened to be numbered.
+        </div>
+      ) : null}
       <div className="comparison-mols">
         <ComparisonSide label="Molecule A" analysis={a} sharedSet={sharedSet} />
         <ComparisonSide label="Molecule B" analysis={b} sharedSet={sharedSet} />
@@ -44,8 +59,11 @@ export function MoleculeComparison({
       <section className="panel env-overlap">
         <h3>Pedagogical environment overlap</h3>
         <p className="hint">
-          From the transparent educational refinement (not RDKit bits). Two
-          molecules share an environment when the same (identifier, radius)
+          From the transparent educational refinement (not RDKit bits). To make
+          the two molecules comparable, both graphs are refined against a{' '}
+          <strong>single shared identifier dictionary</strong>, so the same
+          rooted environment gets the same identifier in each molecule. Two
+          molecules share an environment when the identical (structure, radius)
           feature appears in both.
         </p>
         <dl className="stat-row">

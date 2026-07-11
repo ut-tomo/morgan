@@ -11,7 +11,11 @@ const TERMS: Array<{ term: string; def: string }> = [
   },
   {
     term: 'Morgan 1965',
-    def: 'Morgan 1965 used refinement to reduce the canonicalization search. Modern circular fingerprints retain the refined local descriptions as features.',
+    def: 'Morgan 1965 used a neighbor-SUM refinement to reduce the canonicalization search, producing a canonical connection table (not a fingerprint). Modern circular fingerprints reuse the recursive idea but with a neighbor-MULTISET (labeled 1-WL) update and keep the refined local descriptions as features.',
+  },
+  {
+    term: 'ECFP vs FCFP',
+    def: 'ECFP (Extended-Connectivity Fingerprints) seed atoms with connectivity invariants (element, degree, charge, H count, ring/aromatic flags). FCFP (Functional-Class Fingerprints) instead seed atoms with pharmacophoric feature classes (donor, acceptor, aromatic, halogen, …), so chemically similar but different atoms can share an initial label. This app uses connectivity-style (ECFP-like) invariants; it does not implement FCFP feature classes.',
   },
   {
     term: '1-WL refinement',

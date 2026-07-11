@@ -4,7 +4,11 @@ import { MoleculeViewer } from '../components/MoleculeViewer';
 import { RefinementTimeline } from '../components/RefinementTimeline';
 import { RefinementTable } from '../components/RefinementTable';
 import { Morgan1965Panel } from '../components/Morgan1965Panel';
-import { EducationalFingerprintTable } from '../components/EducationalFingerprintTable';
+import { RefinementRuleComparison } from '../components/RefinementRuleComparison';
+import {
+  EducationalFingerprintTable,
+  type AggregationMode,
+} from '../components/EducationalFingerprintTable';
 import { EnvironmentInspector } from '../components/EnvironmentInspector';
 import { RdkitFingerprintPanel } from '../components/RdkitFingerprintPanel';
 import { useColoredByLabelSvg } from '../model/useSvg';
@@ -16,6 +20,7 @@ export function ExplorePage({ analysis }: { analysis: FullAnalysis }) {
   const { molecule, wl, morgan1965, sparse, rdkitFp } = analysis;
   const [round, setRound] = useState(0);
   const [mode, setMode] = useState<RefinementMode>('wl');
+  const [aggregation, setAggregation] = useState<AggregationMode>('count');
   const [selectedFeatureKey, setSelectedFeatureKey] = useState<string | null>(null);
 
   // Reset transient selections when the molecule or radius changes.
@@ -138,19 +143,54 @@ export function ExplorePage({ analysis }: { analysis: FullAnalysis }) {
         )}
       </section>
 
+      <RefinementRuleComparison />
+
       <section className="panel educational-fp">
-        <h2>Educational sparse fingerprint (circular environments)</h2>
+        <div className="panel-header">
+          <h2>Educational sparse fingerprint (circular environments)</h2>
+          <div className="segmented" role="group" aria-label="Aggregation mode">
+            <button
+              type="button"
+              className={aggregation === 'count' ? 'seg active' : 'seg'}
+              aria-pressed={aggregation === 'count'}
+              onClick={() => setAggregation('count')}
+            >
+              Count
+            </button>
+            <button
+              type="button"
+              className={aggregation === 'binary' ? 'seg active' : 'seg'}
+              aria-pressed={aggregation === 'binary'}
+              onClick={() => setAggregation('binary')}
+            >
+              Binary
+            </button>
+          </div>
+        </div>
         <p className="panel-intro">
-          The multiset of circular, atom-centered environment features collected
-          from the educational refinement, over radii 0–{sparse.maxRadius}. Click
-          a feature to highlight the atoms and bonds inside its radius. This is a
+          The {aggregation === 'count' ? 'multiset (with counts)' : 'set (presence only)'} of
+          circular, atom-centered environment features collected from the
+          educational refinement, over radii 0–{sparse.maxRadius}. Click a
+          feature to highlight the atoms and bonds inside its radius.{' '}
+          <strong>Count</strong> keeps how many times each feature occurs;{' '}
+          <strong>Binary</strong> records only whether it is present — the same
+          count-versus-binary choice real fingerprints expose. This is a
           transparent teaching model — <strong>not</strong> the RDKit output.
+        </p>
+        <p className="hint">
+          {aggregation === 'count'
+            ? `Distinct features: ${sparse.features.length} · total occurrences: ${sparse.totalOccurrences}.`
+            : `Distinct features (set size): ${sparse.features.length}.`}{' '}
+          These educational identifiers are assigned per molecule by an
+          exact-tuple dictionary; they are <strong>unrelated</strong> to the
+          RDKit bit positions shown below.
         </p>
         <div className="fp-body">
           <EducationalFingerprintTable
             sparse={sparse}
             selectedKey={selectedFeatureKey}
             onSelect={setSelectedFeatureKey}
+            aggregation={aggregation}
           />
           <EnvironmentInspector
             feature={selectedFeature}

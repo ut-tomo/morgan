@@ -247,3 +247,28 @@ details summary { cursor: pointer; font-weight: 600; padding: 0.3rem 0; }
 .glossary-list dd { margin: 0.2rem 0 0; color: #333; font-size: 0.92rem; }
 
 .app-footer { color: var(--muted); font-size: 0.82rem; margin: 1.5rem 0 2rem; border-top: 1px solid var(--line); padding-top: 0.75rem; }
+
+/* Rule comparison (Morgan sum vs 1-WL multiset) */
+.rule-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin: 0.5rem 0; }
+@media (max-width: 640px) { .rule-grid { grid-template-columns: 1fr; } }
+.rule-card { border: 1px solid var(--line); border-radius: 8px; padding: 0.5rem 0.75rem; background: #fbfcfd; }
+.rule-card h4 { margin: 0 0 0.3rem; }
+.sum-demo { margin-top: 0.75rem; }
+.sum-demo .data-table td, .sum-demo .data-table th { text-align: center; }
+
+/* Morgan 1965 canonicalization backend */
+.canon-backend { margin-top: 0.6rem; }
+.canon-steps { margin: 0.4rem 0 0.4rem 1.1rem; }
+.canon-steps li { margin: 0.3rem 0; }
+
+/* Hash-collision demo */
+.hash-demo { margin-top: 0.6rem; }
+.sig-cell code { font-size: 0.72rem; word-break: break-all; }
+.hash-demo .distinct { font-weight: 700; text-align: center; }
+
+/* Permutation-invariance callout */
+.perm-callout {
+  background: #eef4fb; border: 1px solid #b6cee6; border-left: 4px solid var(--accent);
+  padding: 0.6rem 0.9rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.92rem;
+}
+.perm-callout code { background: #fff; padding: 0.05rem 0.3rem; border-radius: 4px; }

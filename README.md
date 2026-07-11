@@ -62,6 +62,22 @@ It deliberately avoids claims like "WL solves graph isomorphism", "each Morgan
 bit corresponds to one subgraph", "a fingerprint uniquely identifies a
 molecule", or "the educational implementation exactly equals RDKit".
 
+It also **contrasts** the two refinement rules directly: Morgan 1965 updates an
+atom from the *sum* of its neighbours' values, while 1-WL (and modern circular
+fingerprints) use the *multiset* of neighbour labels. A worked example
+(`{1,3}` and `{2,2}` both sum to 4 but are different multisets) shows why the
+sum can merge environments the multiset keeps apart — so the two are related but
+not identical. The Morgan 1965 panel additionally explains the *rest* of the
+1965 procedure that this tool does not compute: partial ordering → constrained
+candidate numberings → connection tables → lexicographic comparison, whose
+output is a canonical connection table, not a fingerprint.
+
+The educational sparse fingerprint offers a **count ↔ binary** toggle (multiset
+vs. set), and the Compare view refines both molecules against a **single shared
+identifier dictionary** so that "shared environment" counts are genuinely
+comparable across molecules (identical rooted environments get the same
+identifier), rather than comparing per-molecule integer ids.
+
 ### Why fingerprints can collide
 
 The **Limitations** tab separates four genuinely different phenomena that are
@@ -76,7 +92,10 @@ too often lumped together as "hash collisions":
 3. **Environment-identifier collision** — a practical implementation *hashes*
    structured environments, so distinct environments can share an id. The
    educational mode avoids this with an exact dictionary, so you can tell this
-   apart from the other causes.
+   apart from the other causes. Demonstrated live with a small toy hash
+   (`FNV-1a(signature) mod M`) applied to aspirin's real environment
+   signatures, showing two distinct signatures landing in the same bucket
+   *before* any bit-folding.
 4. **Bit-folding collision** — distinct identifiers fold onto the same
    fixed-length bit (demonstrated live by shrinking aspirin's fingerprint length
    and watching the population count drop).
